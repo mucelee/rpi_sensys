@@ -1,0 +1,8 @@
+<launch>
+  <node 
+	pkg="ac_sensor" 
+	name="ac_sensor" 
+	type="ac_sensor.py" 
+	launch-prefix="sudo -E PYTHONPATH=$(env PYTHONPATH)">
+  </node>
+</launch>

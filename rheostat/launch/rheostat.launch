@@ -1,0 +1,8 @@
+<launch>
+  <node 
+	pkg="rheostat" 
+	name="Rheostat" 
+	type="rheostat.py" 
+	launch-prefix="sudo -E PYTHONPATH=$(env PYTHONPATH)">
+  </node>
+</launch>
