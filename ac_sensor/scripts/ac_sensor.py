@@ -16,7 +16,7 @@ voltageAverage = 0
 voltagePositiveAverage = 0
 nextPublishTime = 0
 ads1256.start("1",str(readFrequency))
-pub = rospy.Publisher('/ac_sensor', Float32, tcp_nodelay=False, queue_size=1)
+pub = rospy.Publisher('/sen_4/ac_sensor', Float32, tcp_nodelay=False, queue_size=1)
 rospy.init_node('ac_sensor', anonymous=True)
 rate=rospy.Rate(readFrequency / 2)
 
