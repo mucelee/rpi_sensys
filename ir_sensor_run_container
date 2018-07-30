@@ -1,0 +1,8 @@
+docker run \
+-e FIWARE_IP='192.168.0.110' \
+-e FIWARE_PORT='7896' \
+-e FIWARE_API_KEY='1234' \
+-e FIWARE_DEVICE_ID='san_2_ir_sensor' \
+-e FIWARE_ATTRIBUTE_NAME='objectPresence' \
+-e GPIO_PIN='23' \
+--privileged ir_sensor

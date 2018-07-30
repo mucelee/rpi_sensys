@@ -1,0 +1,7 @@
+docker run \
+-e FIWARE_IP='<ip>' \
+-e FIWARE_PORT='<port>' \
+-e FIWARE_API_KEY='<api key>' \
+-e FIWARE_DEVICE_ID='<device id>' \
+-e FIWARE_ATTRIBUTE_NAME='<attribute name>' \
+--privileged ac_sensor
