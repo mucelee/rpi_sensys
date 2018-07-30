@@ -35,7 +35,4 @@ ADD . /catkin_ws/src/ac_sensor
 
 # Launch the ros package
 WORKDIR /catkin_ws/src/ac_sensor/
-CMD ["roslaunch", "ac_sensor", "ac_sensor.launch"]
-
-# Comment the previous line and uncomment this line to keep the container running for testing (pausing in run script)
-#CMD ["./run"]
+CMD ["./run"]
