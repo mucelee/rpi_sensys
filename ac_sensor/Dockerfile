@@ -14,9 +14,9 @@ RUN /bin/bash -c "source /opt/ros/kinetic/setup.bash && \
 
 # Install prerequisites for ADC library (SoC bcm2835)
 RUN /bin/bash -c "apt-get update && apt-get install -y automake libtool build-essential python-dev wget"
-RUN /bin/bash -c "wget http://www.airspayce.com/mikem/bcm2835/bcm2835-1.56.tar.gz && \
-                  tar zxvf bcm2835-1.56.tar.gz"
-RUN /bin/bash -c "cd bcm2835-1.56 && \
+RUN /bin/bash -c "wget http://www.airspayce.com/mikem/bcm2835/bcm2835-1.45.tar.gz && \
+                  tar zxvf bcm2835-1.45.tar.gz"
+RUN /bin/bash -c "cd bcm2835-1.45 && \
                   autoreconf -vfi && ./configure && \
                   make CXXFLAGS=-fPIC CFLAGS=-fPIC && make install"
 ### We are skipping the "make check" step due to not having access to /dev/mem/ in build environment
@@ -35,5 +35,7 @@ ADD . /catkin_ws/src/ac_sensor
 
 # Launch the ros package
 WORKDIR /catkin_ws/src/ac_sensor/
-#CMD ["roslaunch", "ac_sensor", "ac_sensor.launch"]
-CMD ["./run"]
+CMD ["roslaunch", "ac_sensor", "ac_sensor.launch"]
+
+# Comment the previous line and uncomment this line to keep the container running for testing (pausing in run script)
+#CMD ["./run"]

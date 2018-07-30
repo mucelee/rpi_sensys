@@ -28,7 +28,6 @@ def Loop(channelValue):
         currentTime = time.clock()
         if(currentTime < nextPublishTime):
                 return
-        
         nextPublishTime = currentTime + publishInterval
         rmsMillivolts = math.floor((voltagePositiveAverage - voltageAverage) * 1000)
         print(rmsMillivolts)
@@ -38,7 +37,10 @@ def ReadValues():
                 Loop(ads1256.read_channel(adcChannel))
                 time.sleep(1 / readFrequency / 2)
         ads1256.stop()
-        
-ReadValues()
+
+try:
+	ReadValues()
+except KeyboardInterrupt:
+	pass
 
 ads1256.stop()
