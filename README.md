@@ -1,6 +1,8 @@
 # rpi_sensys
 Sensors for RPi
 
+For development setup, clone this repo to ROS's /catkin_ws/src/ folder
+
 ## ac_sensor
 - connect hardware (description coming later)
 
