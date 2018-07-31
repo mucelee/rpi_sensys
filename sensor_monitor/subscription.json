@@ -1,0 +1,27 @@
+{
+    "description": "A subscription to get info about ir sensor",
+    "subject": {
+        "entities": [
+            {
+                "id": "san_2_ir_sensor",
+                "type": "Sensor"
+            }
+        ],
+        "condition": {
+            "attrs": [
+                "objectPresence"
+            ]
+        }
+    },
+    "notification": {
+        "http": {
+            "url": "http://192.168.0.101:1234/"
+        },
+        "attrs": [
+            "objectPresence"
+        ]
+    },
+    "duration": "P1D",
+    "throttling": 1
+}
+
