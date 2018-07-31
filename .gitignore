@@ -1,3 +1,5 @@
 /firos/
 /spy_pkg/
 *.py.swp
+
+node_modules/
