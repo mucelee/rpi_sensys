@@ -1,50 +1,81 @@
-// Boilerplate to run the window
-const {app, BrowserWindow} = require('electron')
-let mainWindow
+// Run the window
+const {app, BrowserWindow} = require('electron');
+let mainWindow;
 
 function createWindow () {
-  mainWindow = new BrowserWindow({width: 800, height: 600})
-  mainWindow.loadFile('index.html')
-  // mainWindow.webContents.openDevTools()
+  mainWindow = new BrowserWindow({width: 800, height: 600, show: false});
+  mainWindow.loadFile('index.html');
+  //mainWindow.webContents.openDevTools()
   mainWindow.on('closed', function () {
     mainWindow = null
+  });
+  mainWindow.once('ready-to-show', () => {
+    mainWindow.show()
+    listen();
+    subscribe();
   })
 }
 
-app.on('ready', createWindow)
+app.on('ready', createWindow);
 
 app.on('window-all-closed', function () {
   if (process.platform !== 'darwin') {
-    app.quit()
+    unsubAll();
+    setTimeout(quit, 3000);
   }
-})
+});
+
+function quit(){
+  app.quit();
+}
 
 app.on('activate', function () {
   if (mainWindow === null) {
     createWindow()
   }
-})
+});
 
-// Our code
+//#region Listener
+
 // Server to listen for published messages from CB
-const http = require('http')
-const port = 1234
+var objectPresence = false;
+
+const http = require('http');
+const port = 1234;
+
+var subscriptionIds = new Set();
 
 const requestHandler = (request, response) => {
-  //console.log(request.url)
-  console.log("request.headers: " + JSON.stringify(request.headers));
-  console.log("request.body: " + JSON.stringify(request.body));
+  //console.log("request.headers: " + JSON.stringify(request.headers));
+  let body = [];
+  request.on('data', (chunk) => {
+    body.push(chunk);
+  }).on('end', () => {
+    body = Buffer.concat(body).toString();
+    var bodyJson = JSON.parse(body);
+    subscriptionIds.add(bodyJson.subscriptionId);
+    console.log("Json: " + JSON.stringify(bodyJson));
+    objectPresence = bodyJson.data[0].objectPresence.value;;
+    console.log("Value: " + objectPresence);
+    mainWindow.webContents.send('objectPresence', objectPresence);
+  });
 }
 
 const server = http.createServer(requestHandler)
 
-server.listen(port, (err) => {
-  if (err) {
-    return console.log('something bad happened', err)
-  }
+function listen(){
+  server.listen(port, (err) => {
+    if (err) {
+      return console.log('something bad happened', err)
+    }
+    console.log(`server is listening on ${port}`);
+  });
+}
 
-  console.log(`server is listening on ${port}`)
-})
+
+//#endregion
+
+//#region Subscription
 
 // Send subscribe request
 var fs = require('fs');
@@ -52,52 +83,59 @@ var subscription = JSON.parse(fs.readFileSync('subscription.json', 'utf8'));
 
 const request = require('request');
 
-var options = {
-  method: 'POST',
-  url: 'http://192.168.0.110:1026/v2/subscriptions',
-  headers: {
-    'Content-Type': 'application/json'
-  },
-  body: JSON.stringify(subscription)
-};
- 
-request(options, (err, res, body) => 
-{
-  if (err) return console.log("err: " + err);
-  console.log("body.url: " + body.url);
-  console.log("body.explanation: " + body.explanation);
-})
-.on('response', function(response){
-  console.log(response.statusCode);
-  console.log("response.headers: " + JSON.stringify(response.headers));
-  console.log("response.body: " + JSON.stringify(response.body));
-})
-.on('data', function(data) {
-  console.log("data: " + data);
-});
+function options(){
+  return {
+    method: 'POST',
+    url: 'http://192.168.0.110:1026/v2/subscriptions',
+    headers: {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json'
+    },
+    body: JSON.stringify(subscription)
+  };
+}
+
+function subscribe(){
+  request(options(), (err, res, body) => 
+  {
+    if (err) return console.log("err: " + err);
+  })
+  .on('response', function(response){
+    console.log(response.statusCode);
+    console.log("response.headers: " + JSON.stringify(response.headers));
+  });
+}
+
+function unsubscribe(subId){
+  console.log("unsubscribing: " + subId);
+  //let resolved = false;
+  //var endTime = Date.now() + 3000;
+  request.delete(
+    'http://192.168.0.110:1026/v2/subscriptions/' + subId
+  ).on('error', function(err){
+    console.log(err);
+  }).on('response', function(response){
+    //resolved = true;
+    console.log(response.statusCode);
+    console.log("unsubscribe response.headers: " + JSON.stringify(response.headers));
+  });
+  //while(Date.now() < endTime && resolved === false);
+  return resolved;
+}
+
+function unsubAll(){
+  console.log(subscriptionIds);
+  var removed = new Set();
+  for (var it = subscriptionIds.values(), subId = null; subId = it.next().value; ) {
+    setTimeout(unsubscribe, 3000, subId);
+    removed.add(subId);
+  }
+  subscriptionIds.forEach((id) => {
+    subscriptionIds.delete(id);
+  });
+}
+
+//#endregion
 
 
-// subscription example
-/* {
-  "entities": [
-      {
-          "type": "Sensor",
-          "id": "san_2_ir_sensor"
-      }
-  ],
-  "attributes": [
-      "objectPresence"
-  ],
-  "reference": "http://192.168.0.103:5555",
-  "duration": "P1D",
-  "notifyConditions": [
-      {
-          "type": "ONCHANGE",
-          "condValues": [
-              "objectPresence"
-          ]
-      }
-  ],
-  "throttling": "PT2S"
-} */
-	
+setTimeout(unsubAll, 10000);
