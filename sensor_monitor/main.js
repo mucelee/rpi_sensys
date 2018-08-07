@@ -1,4 +1,6 @@
 // Run the window
+const ip = "localhost";
+
 const {app, BrowserWindow} = require('electron');
 let mainWindow;
 
@@ -13,7 +15,7 @@ function createWindow () {
     mainWindow.show()
     listen();
     subscribe();
-  })
+  });
 }
 
 app.on('ready', createWindow);
@@ -86,7 +88,7 @@ const request = require('request');
 function options(){
   return {
     method: 'POST',
-    url: 'http://192.168.0.110:1026/v2/subscriptions',
+    url: 'http://' + ip + ':1026/v2/subscriptions',
     headers: {
       'Content-Type': 'application/json',
       'Accept': 'application/json'
@@ -108,26 +110,21 @@ function subscribe(){
 
 function unsubscribe(subId){
   console.log("unsubscribing: " + subId);
-  //let resolved = false;
-  //var endTime = Date.now() + 3000;
   request.delete(
-    'http://192.168.0.110:1026/v2/subscriptions/' + subId
+    'http://' + ip + ':1026/v2/subscriptions/' + subId
   ).on('error', function(err){
     console.log(err);
   }).on('response', function(response){
-    //resolved = true;
     console.log(response.statusCode);
     console.log("unsubscribe response.headers: " + JSON.stringify(response.headers));
   });
-  //while(Date.now() < endTime && resolved === false);
-  return resolved;
 }
 
 function unsubAll(){
   console.log(subscriptionIds);
   var removed = new Set();
   for (var it = subscriptionIds.values(), subId = null; subId = it.next().value; ) {
-    setTimeout(unsubscribe, 3000, subId);
+    unsubscribe(subId);
     removed.add(subId);
   }
   subscriptionIds.forEach((id) => {
@@ -137,5 +134,3 @@ function unsubAll(){
 
 //#endregion
 
-
-setTimeout(unsubAll, 10000);

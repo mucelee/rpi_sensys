@@ -2,7 +2,7 @@
 <html>
   <head>
     <meta charset="UTF-8">
-    <title>Hello World!</title>
+    <title>SAN monitor</title>
     <script>
       require('electron').ipcRenderer.on('objectPresence', (event, message) => {
         console.log(message);
@@ -11,7 +11,7 @@
     </script>
   </head>
   <body>
-    <h1>Hello World!</h1>
+    <h1>SAN monitor!</h1>
 
     objectPresence: <p id="objectPresence"></div>
 

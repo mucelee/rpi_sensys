@@ -21,8 +21,7 @@
             "objectPresence"
         ]
     },
-    "duration": "T5M",
-    "throttling": 1,
-    "subscriptionId": "51bf1e0ada053170df590f20"
+    "duration": "D1M",
+    "throttling": 1
 }
 
