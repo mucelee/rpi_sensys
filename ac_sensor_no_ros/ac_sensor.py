@@ -7,8 +7,8 @@ import os
 ip = os.getenv('FIWARE_IP', '192.168.0.110')
 port = os.getenv('FIWARE_PORT', '7896')
 apiKey = os.getenv('FIWARE_API_KEY', '1234')
-deviceId = os.getenv('FIWARE_DEVICE_ID', 'san_2_ir_sensor')
-attributeName = os.getenv('FIWARE_ATTRIBUTE_NAME', 'objectPresence')
+deviceId = os.getenv('FIWARE_DEVICE_ID', 'san_2_ac_sensor')
+attributeName = os.getenv('FIWARE_ATTRIBUTE_NAME', 'coilVoltage')
 requestData = 'http://%s:%s/iot/d?k=%s&i=%s&d=%s|{}' % (ip, port, apiKey, deviceId, attributeName)
 
 # configuration #
@@ -39,14 +39,14 @@ def Loop(channelValue):
 	
 	nextPublishTime = currentTime + publishInterval
 	rmsMillivolts = math.floor((voltagePositiveAverage - voltageAverage) * 1000) # voltage on the ends of coil
-	uri = requestData.format("true")
+	uri = requestData.format(rmsMillivolts)
 	print(uri)
-	#requests.post(requestData.format("true"), headers={"context-type":"text/plain"})
+	#requests.post(uri, headers={"context-type":"text/plain"})
 
 def ReadValues():
-	while not rospy.is_shutdown():
+	while True:
 		Loop(ads1256.read_channel(adcChannel))
-		rate.sleep()
+		time.sleep(1 / readFrequency / 2)
 	ads1256.stop()
 	
 if __name__== '__main__':
