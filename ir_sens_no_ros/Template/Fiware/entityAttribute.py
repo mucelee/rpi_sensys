@@ -1,4 +1,6 @@
 import json
+from sensorDataEntry import SensorDataEntry
+import sensor
 
 class EntityAttribute():
     """description of class"""
@@ -6,6 +8,7 @@ class EntityAttribute():
         if(metadata != None):
             self.metadata = EntityAttribute(metadata)
         objectType = type(_object)
+        print(objectType)
         if(objectType is float):
             self.type = "Float"
             self.value = float(_object)
@@ -15,17 +18,21 @@ class EntityAttribute():
         elif objectType is str:
             self.type = "String"
             self.value = str(_object)
+        elif objectType is bool:
+            self.type = "Boolean"
+            self.value = bool(_object)
         elif objectType is list:
             self.type = "Array"
             self.value = []
             for item in _object:
-                self.value.append(EntityAttribute(item))
+                if item is SensorDataEntry or isinstance(item, SensorDataEntry):
+                    self.value.append(sensor.Sensor(item))
+                else:
+                    self.value.append(EntityAttribute(item))
         elif objectType is dict:
+            """  or objectType is SensorDataEntry """
             for key, value in _object.iteritems():
                 setattr(self, key, EntityAttribute(value))
-        elif objectType is bool:
-            self.type = "Boolean"
-            self.value = bool(_object)
         else:
             self.type = _object.__class__.__name__
             tempDict = {}

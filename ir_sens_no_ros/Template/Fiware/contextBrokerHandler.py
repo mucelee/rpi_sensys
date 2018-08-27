@@ -1,6 +1,8 @@
 import requests
 import json 
 import httplib
+import time
+import threading
 
 from entity import Entity 
 from entityAttribute import EntityAttribute
@@ -18,38 +20,55 @@ def isResponseOk(statusCode):
 class ContextBrokerHandler:
 
     def __init__(self, fiwareAddress):
-        self.fiwareAddress = fiwareAddress
-         
-        self.published_entities = []
-        self.entities = []
+        self._fiwareAddress = fiwareAddress
+        self._published_entities = []
+        self._attached_entities = []
+        self._start_loop()
 
     def attach_entity(self, entity):
-        self.entities.append(entity)
+        self._attached_entities.append(entity)
 
     def register_entities(self):
-        for entity in self.entities:
-            self.create_entity(entity)
+        for entity in self._attached_entities:
+            self._create_entity(entity)
 
-    def update_or_create_entity(self, entityInstance):
-        self.create_entity(entityInstance)
+    def unregister_entities(self):
+        for entity in self._published_entities:
+            self._delete_entity(entity)
 
-    def create_entity(self, entityInstance):
+    #region Private methods
+
+    def _start_loop(self):
+        print("start_loop")
+        updateThread = threading.Thread(target=self._update_loop)
+        updateThread.start()
+
+    def _update_loop(self):
+        while True:
+            time.sleep(1)
+            print(".")
+            for entity in self._published_entities:
+                if(entity.has_changed() == True):
+                    self._update_entity(entity)
+
+    def _create_entity(self, entityInstance):
         print "Create Entity"
         statusCode = httplib.OK
 
         # check maybe to delete:
-        if(self.delete_entity(entityInstance)):
+        if(self._delete_entity(entityInstance)):
             print "error"
 
         entity = Entity()
-        entity.convertObjectToEntity(entityInstance) 
-        asJson = JsonConvert.ToJSON(entity)
-        print asJson
+        entity.convertObjectToEntity(entityInstance)
+        
+        jsonString = JsonConvert.ToJSON(entity)
+        print jsonString
 
-        response = requests.post(self.fiwareAddress + "/v2/entities", data=asJson, headers=HEADERS)
+        response = requests.post(self._fiwareAddress + "/v2/entities", data=jsonString, headers=HEADERS)
         statusCode = response.status_code
         if(isResponseOk(statusCode)): # everything is fine
-            self.published_entities.append(entityInstance)
+            self._published_entities.append(entityInstance)
             print "Status OK"
         elif(statusCode == httplib.BAD_REQUEST): # everything is NOT fine
             print "httplib.UNPROCESSABLE_ENTITY"
@@ -66,38 +85,51 @@ class ContextBrokerHandler:
         #    statusCode = response.status_code;
         #    print statusCode
 
-    def delete_entity(self, entityInstance):
-        print "Delete Entity - Id: " + str (entityInstance)
+    def _update_entity(self, entityInstance):
+        print "Update Entity"
         entity = Entity()
-        entity.convertObjectToEntity(entityInstance) 
-        response = requests.delete(self.fiwareAddress + "/v2/entities/" + str(entity.id))
+        entity.convertObjectToEntity(entityInstance)
+        jsonString = JsonConvert.ToJSON(entity)
+        jsonString = ContextBrokerHandler._remove_id_and_type(jsonString)
+        print jsonString
+        response = requests.patch(self._fiwareAddress + "/v2/entities/" + str(entity.id) + "/attrs", data=jsonString, headers=HEADERS)
+        statusCode = response.status_code
+        if isResponseOk(statusCode): # everything is fine
+            entityInstance.clear_dirty()
+            print "Status OK"
+        elif statusCode == httplib.BAD_REQUEST: # everything is NOT fine
+            print "httplib.UNPROCESSABLE_ENTITY"
+            print statusCode
+            print response
+            print json.loads(response.content)
+        else:
+            print statusCode
+            print response
+            print json.loads(response.content)
+
+    def _delete_entity(self, entity):
+
+        print "Delete Entity - Id: " + str (entity.id)
+        #entity = Entity()
+        #entity.convertObjectToEntity(entity) 
+        response = requests.delete(self._fiwareAddress + "/v2/entities/" + str(entity.id))
         statusCode = response.status_code
         
         if(isResponseOk(statusCode)): # everything is fine
             print "Status OK"
+            if entity in self._published_entities: # Not sure at all about this, probably shouldn't delete on creation and don't need that check
+                self._published_entities.remove(entity)
             return 0
         else:
             content = json.loads(response.content)
             print content
             return statusCode
 
-    def unregister_entities(self):
-        for entity in self.published_entities:
-            self.delete_entity(entity)
-            self.published_entities.remove(entity)
+    @staticmethod
+    def _remove_id_and_type(jsonString):
+        jsonObject = json.loads(jsonString)
+        del jsonObject["id"]
+        del jsonObject["type"]
+        return json.dumps(jsonObject, default=lambda o: o.__dict__, sort_keys=True, indent=4)
 
-    def update_entity(self, msg):
-        self.msg_queue.append(msg)
-
-    def subscribe(self, msg, subscriber):
-        self.subscribers.setdefault(msg, []).append(subscriber)
-
-    def unsubscribe(self, msg, subscriber):
-        self.subscribers[msg].remove(subscriber)
-
-    def update(self):
-        for msg in self.msg_queue:
-            for sub in self.subscribers.get(msg, []):
-                sub.run(msg)
-        self.msg_queue = []
- 
+    #endregion

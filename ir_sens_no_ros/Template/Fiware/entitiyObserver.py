@@ -31,10 +31,10 @@ class EntityAttributeChangeObserver(Observer):
         id = instance.__class__.__name__ + "1"
         # shame on me, a really dirty, workaround!
         asJson = '{"'
-        for key, value in attributesDict:
-            asJson += key  +'" :' + EntityAttribute(value).toJson()
+        for key in iter(attributesDict):
+            asJson += key  +'" :' + EntityAttribute(attributesDict[key]).toJson()
         asJson += '}'
-
+        print asJson
         response = requests.patch(self.fiwareAddress +NGSI_VERSION_2  + str(id) + NGSI_ATTR , data=asJson, headers=HEADERS)
         statusCode = response.status_code
         print statusCode

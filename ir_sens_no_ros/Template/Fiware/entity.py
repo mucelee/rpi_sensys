@@ -23,36 +23,24 @@ class Entity(object):
         self.id = self.type 
 
     def convertObjectToEntity(self, _object):
-        self.__dict__.clear() 
-        # thats how to set the type and id of an entity - its simple but works for a first version
-        if not _object.id == None:
-            self.id = _object.id
-        else:
-            self.id = self.type + VERSION
-        self.type  = _object.type #_object.__class__.__name__
-        
+        self.updateValues(_object)
+    
+    def updateValues(self, _object):
+        self.__dict__.clear()
+        self.id = _object.id
+        self.type = _object.type
         if(hasattr(_object, "modifiedTime")):
             self.modifiedTime = EntityAttribute(_object.modifiedTime(), _object._metadata_modifiedTime)
         else:
             print("No modified time defined for object")
-
         for key, value in _object.__dict__.iteritems():
              print key, value
-             if (key == "type" or key =="id" or str(key).startswith('_', 0, 1)):
+             if key == "id" or key == "type" or str(key).startswith('_', 0, 1):
                 pass
              else:
-                self.__dict__[key] = EntityAttribute(value)
-    
+                self.__dict__[key] = EntityAttribute(value, {})
  
     def __repr__(self):
         retVal = ""
         retVal = "Id: " + str(self.id) + ", Type: " + str (self.type)
         return retVal
-
-
-def validateAndConvertValues(polValues):
-    newArray = []
-    for item in polValues:
-        newVal = int(item) if isValidPollTime(item) else -1
-        newArray.append(newVal)
-    return newArray

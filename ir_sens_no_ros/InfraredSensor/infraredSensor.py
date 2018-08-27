@@ -1,18 +1,15 @@
+from Template.Fiware.sensorDataEntry import SensorDataEntry
 
+class InfraredSensor(SensorDataEntry):
 
-from Template.Fiware.sensorAgentNode import SensorAgentNode
+    def __init__(self):
+        SensorDataEntry.__init__(self)
+        self.test = 0
 
-class InfraredSensor(SensorAgentNode):
-    """description of class"""
-
+    def test_value_change(self):
+        self.test += 1
     
-
-    #def __init__(self):
-        
-    
-    def __repr__(self):
+    """ def __repr__(self):
         retVal = ""
         retVal = "Type: " + str(self.__class__.__name__)
-        return retVal
-
-    
+        return retVal """
