@@ -34,13 +34,13 @@ class AlternatingCurrentSensor(SensorDataEntry):
 	def processData(self, channelValue):
 		voltage = ((channelValue * 100) / 167.0) / 1000000.0
 		if(self.voltageAverage == 0):
-			voltageAverage = voltage
-			voltagePositiveAverage = voltage
+			self.voltageAverage = voltage
+			self.voltagePositiveAverage = voltage
 		else:
-			voltageAverage = voltage * self.smoothingFactor + voltageAverage * (1 - self.smoothingFactor)
-			if(voltage > voltageAverage):
-				voltagePositiveAverage = voltage * self.smoothingFactor + voltagePositiveAverage * (1 - self.smoothingFactor)
-		rmsMillivolts = (voltagePositiveAverage - voltageAverage) * 1000 # voltage on the ends of coil
+			self.voltageAverage = voltage * self.smoothingFactor + self.voltageAverage * (1 - self.smoothingFactor)
+			if(voltage > self.voltageAverage):
+				self.voltagePositiveAverage = voltage * self.smoothingFactor + self.voltagePositiveAverage * (1 - self.smoothingFactor)
+		rmsMillivolts = (self.voltagePositiveAverage - self.voltageAverage) * 1000 # voltage on the ends of coil
 		rmsMilliamps = math.floor(rmsMillivolts * 30)
 		if math.fabs(self.lastPublishedCurrent - rmsMilliamps) < self.minimumDeltaMilliampsForPublish:
 			return
