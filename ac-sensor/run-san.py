@@ -15,7 +15,7 @@ if __name__ == '__main__':
     ContextBrokerHandler.verboseLogging = False
 
     # Create an instance of the Fiware OCB handler
-    ocbHandler = ContextBrokerHandler(parsedConfigFile.getFiwareServerAddress())
+    ocbHandler = ContextBrokerHandler(parsedConfigFile.getFiwareServerAddress(), 1)
     # Create SAN instance
     sensorAgentNode = SensorAgentNode()
     

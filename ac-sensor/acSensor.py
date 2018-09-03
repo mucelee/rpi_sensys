@@ -11,9 +11,9 @@ class AlternatingCurrentSensor(SensorDataEntry):
 	# configuration
 	adcChannel = 2
 	publishInterval = 1
-	readFrequency = 30000 # ADC's SPS parameter. Possible values:   2d5,  5,  10,  15,  25,  30,  50,  60,  100,  500,  1000,  2000,  3750,  7500,  15000,  30000
-	smoothingFactor = 0.01
-	minimumDeltaMilliampsForPublish = 250
+	readFrequency = 100 # ADC's SPS parameter. Possible values:   2d5,  5,  10,  15,  25,  30,  50,  60,  100,  500,  1000,  2000,  3750,  7500,  15000,  30000
+	smoothingFactor = 0.2
+	minimumDeltaMilliampsForPublish = 0
 
 	def __init__(self):
 		SensorDataEntry.__init__(self)

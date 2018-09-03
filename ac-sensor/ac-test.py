@@ -10,14 +10,15 @@ class TestSensor(object):
 	adcChannel = 2
 	publishInterval = 1
 	readFrequency = 30000 # ADC's SPS parameter. Possible values:   2d5,  5,  10,  15,  25,  30,  50,  60,  100,  500,  1000,  2000,  3750,  7500,  15000,  30000
-	smoothingFactor = 0.01
-	minimumDeltaMilliampsForPublish = 250
+	smoothingFactor = 0.05
+	minimumDeltaMilliampsForPublish = 0
 
 	def __init__(self):
 		print("init")
 		self.voltageAverage = 0
 		self.voltagePositiveAverage = 0
-		self.lastPublishedCurrent = -999999
+		self.lastPublishedCurrent = -99999
+		self.nextPublishTime = 0
 		ads1256.start("1",str(self.readFrequency))
 		#threading.Thread(target=self.loop).start()
 
@@ -45,13 +46,19 @@ class TestSensor(object):
 		rmsMillivolts = (self.voltagePositiveAverage - self.voltageAverage) * 1000 # voltage on the ends of coil
 		rmsMilliamps = math.floor(rmsMillivolts * 30)
 		#print(rmsMilliamps)
-		if math.fabs(self.lastPublishedCurrent - rmsMilliamps) < self.minimumDeltaMilliampsForPublish:
+		#if math.fabs(self.lastPublishedCurrent - rmsMilliamps) < self.minimumDeltaMilliampsForPublish:
+		#	return
+		currentTime = time.clock()
+		if currentTime < self.nextPublishTime:
 			return
+		self.nextPublishTime = currentTime + 1
 		self.lastPublishedCurrent = rmsMilliamps
 		print(rmsMilliamps)
 
+sensor = TestSensor()
+
 try:
-	sensor = TestSensor().loop()
+	sensor.loop()
 except KeyboardInterrupt:
 	del sensor
 	exit()
