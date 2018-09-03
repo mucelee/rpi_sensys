@@ -4,11 +4,7 @@ import math
 import time
 import threading
 
-from SAN.sensorDataEntry import SensorDataEntry
-
-gpioPin = 23
-
-class AlternatingCurrentSensor(SensorDataEntry):
+class TestSensor(object):
 
 	# configuration
 	adcChannel = 2
@@ -18,7 +14,7 @@ class AlternatingCurrentSensor(SensorDataEntry):
 	minimumDeltaMilliampsForPublish = 250
 
 	def __init__(self):
-		SensorDataEntry.__init__(self)
+		print("init")
 		self.voltageAverage = 0
 		self.voltagePositiveAverage = 0
 		self.lastPublishedCurrent = -999999
@@ -47,17 +43,8 @@ class AlternatingCurrentSensor(SensorDataEntry):
 		if math.fabs(self.lastPublishedCurrent - rmsMilliamps) < self.minimumDeltaMilliampsForPublish:
 			return
 		self.lastPublishedCurrent = rmsMilliamps
-		self.addReading(rmsMilliamps)
-		self.set_dirty()
+		print(rmsMilliamps)
 
-	@property
-	def sensorId(self):
-		return "ac_1"
-
-	@property
-	def sensorType(self):
-		return "AC Sensor"
-
-	@property
-	def measurementType(self):
-		return "RMS Current Milliamperes"
+sensor = TestSensor()
+while True:
+	pass

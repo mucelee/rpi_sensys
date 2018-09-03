@@ -6,8 +6,6 @@ import threading
 
 from SAN.sensorDataEntry import SensorDataEntry
 
-gpioPin = 23
-
 class AlternatingCurrentSensor(SensorDataEntry):
 
 	# configuration
