@@ -72,7 +72,8 @@ class ContextBrokerHandler:
             print json.loads(response.content)
 
     def _update_entity(self, entityInstance):
-        print "Update entity %s" % (entityInstance.id)
+        if self.verboseLogging:
+            print "Update entity %s" % (entityInstance.id)
         entity = Entity(entityInstance)
         jsonString = JsonConvert.ToJSON(entity)
         jsonString = ContextBrokerHandler._remove_id_and_type(jsonString)
