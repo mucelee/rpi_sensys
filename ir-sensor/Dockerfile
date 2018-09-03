@@ -5,14 +5,14 @@ FROM  hypriot/rpi-python
 # Set working directory
 WORKDIR /ir_sensor/
 
-# Copy source files
-ADD . /ir_sensor/
-
 # Install dependencies
 RUN apt-get update && apt-get install -y \
     gcc \
     --no-install-recommends && \
 rm -rf /var/lib/apt/lists/*
+
+# Copy source files
+ADD . /ir_sensor/
 
 # Install any needed packages specified in requirements.txt
 RUN pip install -i https://pypi.python.org/simple -U pip distribute
