@@ -19,32 +19,37 @@ class TestSensor(object):
 		self.voltagePositiveAverage = 0
 		self.lastPublishedCurrent = -999999
 		ads1256.start("1",str(self.readFrequency))
-		threading.Thread(target=self.loop).start()
+		#threading.Thread(target=self.loop).start()
 
 	def __del__(self):
 		ads1256.stop()
 
 	def loop(self):
 		while True:
-			self.processData(ads1256.read_channel(self.adcChannel))
-			time.sleep(1 / self.readFrequency / 2)
+			channelValue = ads1256.read_channel(self.adcChannel)
+			#print(channelValue)
+			self.processData(channelValue)
+			time.sleep(1.0 / self.readFrequency / 2.0)
 
 	def processData(self, channelValue):
 		voltage = ((channelValue * 100) / 167.0) / 1000000.0
 		if(self.voltageAverage == 0):
-			voltageAverage = voltage
-			voltagePositiveAverage = voltage
+			self.voltageAverage = voltage
+			self.voltagePositiveAverage = voltage
 		else:
-			voltageAverage = voltage * self.smoothingFactor + voltageAverage * (1 - self.smoothingFactor)
-			if(voltage > voltageAverage):
-				voltagePositiveAverage = voltage * self.smoothingFactor + voltagePositiveAverage * (1 - self.smoothingFactor)
-		rmsMillivolts = (voltagePositiveAverage - voltageAverage) * 1000 # voltage on the ends of coil
+			self.voltageAverage = voltage * self.smoothingFactor + self.voltageAverage * (1 - self.smoothingFactor)
+			if(voltage > self.voltageAverage):
+				self.voltagePositiveAverage = voltage * self.smoothingFactor + self.voltagePositiveAverage * (1 - self.smoothingFactor)
+		rmsMillivolts = (self.voltagePositiveAverage - self.voltageAverage) * 1000 # voltage on the ends of coil
 		rmsMilliamps = math.floor(rmsMillivolts * 30)
+		#print(rmsMilliamps)
 		if math.fabs(self.lastPublishedCurrent - rmsMilliamps) < self.minimumDeltaMilliampsForPublish:
 			return
 		self.lastPublishedCurrent = rmsMilliamps
 		print(rmsMilliamps)
 
-sensor = TestSensor()
-while True:
-	pass
+try:
+	sensor = TestSensor().loop()
+except KeyboardInterrupt:
+	del sensor
+	exit()

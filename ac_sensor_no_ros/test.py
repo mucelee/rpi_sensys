@@ -34,7 +34,9 @@ def Loop(channelValue):
 
 def ReadValues():
         while True:
-                Loop(ads1256.read_channel(adcChannel))
+		channelValue = ads1256.read_channel(adcChannel)
+		#print(channelValue)
+                Loop(channelValue)
                 time.sleep(1 / readFrequency / 2)
         ads1256.stop()
 
