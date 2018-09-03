@@ -26,10 +26,12 @@ class TestSensor(object):
 
 	def loop(self):
 		while True:
+			nextProcessTime = time.clock() + 1 / self.readFrequency / 2
 			channelValue = ads1256.read_channel(self.adcChannel)
 			#print(channelValue)
 			self.processData(channelValue)
-			time.sleep(1.0 / self.readFrequency / 2.0)
+			while time.clock() < nextProcessTime:
+				pass
 
 	def processData(self, channelValue):
 		voltage = ((channelValue * 100) / 167.0) / 1000000.0

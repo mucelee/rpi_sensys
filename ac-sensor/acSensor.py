@@ -28,8 +28,11 @@ class AlternatingCurrentSensor(SensorDataEntry):
 
 	def loop(self):
 		while True:
+			nextProcessTime = time.clock() + 1 / self.readFrequency / 2
 			self.processData(ads1256.read_channel(self.adcChannel))
-			time.sleep(1 / self.readFrequency / 2)
+			while time.clock() < nextProcessTime:
+				pass
+			#time.sleep(1 / self.readFrequency / 2)
 
 	def processData(self, channelValue):
 		voltage = ((channelValue * 100) / 167.0) / 1000000.0
