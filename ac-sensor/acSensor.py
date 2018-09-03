@@ -20,6 +20,7 @@ class AlternatingCurrentSensor(SensorDataEntry):
 		self.voltageAverage = 0
 		self.voltagePositiveAverage = 0
 		self.lastPublishedCurrent = -999999
+		self.nextPublishTime = 0
 		ads1256.start("1",str(self.readFrequency))
 		threading.Thread(target=self.loop).start()
 
@@ -45,9 +46,13 @@ class AlternatingCurrentSensor(SensorDataEntry):
 				self.voltagePositiveAverage = voltage * self.smoothingFactor + self.voltagePositiveAverage * (1 - self.smoothingFactor)
 		rmsMillivolts = (self.voltagePositiveAverage - self.voltageAverage) * 1000 # voltage on the ends of coil
 		rmsMilliamps = math.floor(rmsMillivolts * 30)
-		if math.fabs(self.lastPublishedCurrent - rmsMilliamps) < self.minimumDeltaMilliampsForPublish:
+		# if math.fabs(self.lastPublishedCurrent - rmsMilliamps) < self.minimumDeltaMilliampsForPublish:
+		# 	return
+		# print(rmsMilliamps)
+		currentTime = time.clock()
+		if currentTime < self.nextPublishTime:
 			return
-		print(rmsMilliamps)
+		self.nextPublishTime = currentTime + 1
 		self.lastPublishedCurrent = rmsMilliamps
 		self.addReading(rmsMilliamps)
 		self.set_dirty()
