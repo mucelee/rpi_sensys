@@ -34,7 +34,7 @@ if __name__ == '__main__':
 	    while True:
 		    pass
     except KeyboardInterrupt:
-        pass
+        del acSensor
     print "Done"
     # Delete entities after shutting down
     ocbHandler.unregister_entities()   

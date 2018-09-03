@@ -44,6 +44,7 @@ class AlternatingCurrentSensor(SensorDataEntry):
 		rmsMilliamps = math.floor(rmsMillivolts * 30)
 		if math.fabs(self.lastPublishedCurrent - rmsMilliamps) < self.minimumDeltaMilliampsForPublish:
 			return
+		print(rmsMilliamps)
 		self.lastPublishedCurrent = rmsMilliamps
 		self.addReading(rmsMilliamps)
 		self.set_dirty()
