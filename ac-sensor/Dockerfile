@@ -22,5 +22,9 @@ RUN /bin/bash -c "cd ~ && git clone https://github.com/fabiovix/py-ads1256.git &
 # Copy files to workspace
 ADD . /ac_sensor
 
+# Install any needed packages specified in requirements.txt
+RUN pip install -i https://pypi.python.org/simple -U pip distribute
+RUN pip install -r requirements.txt
+
 # Launch the ros package
 CMD ["python", "run-san.py"]
