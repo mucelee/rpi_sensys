@@ -48,7 +48,7 @@ class ContextBrokerHandler:
             time.sleep(1)
             print(".")
             for entity in self._published_entities:
-                if(entity.has_changed() == True):
+                if(entity.is_dirty() == True):
                     self._update_entity(entity)
 
     def _create_entity(self, entityInstance):
@@ -78,13 +78,6 @@ class ContextBrokerHandler:
             print statusCode
             print response
 
-        # update of an entity:
-        #elif(statusCode == httplib.UNPROCESSABLE_ENTITY): # everything is fine
-        #    print "httplib.UNPROCESSABLE_ENTITY"
-        #    response = requests.patch(self.fiwareAddress + "/v2/entities/" + str(entity.id) + "/attrs", data=asJson, headers=HEADERS)
-        #    statusCode = response.status_code;
-        #    print statusCode
-
     def _update_entity(self, entityInstance):
         print "Update Entity"
         entity = Entity()
@@ -108,10 +101,9 @@ class ContextBrokerHandler:
             print json.loads(response.content)
 
     def _delete_entity(self, entity):
-
-        print "Delete Entity - Id: " + str (entity.id)
         #entity = Entity()
-        #entity.convertObjectToEntity(entity) 
+        #entity.convertObjectToEntity(entityInstance) 
+        print "Delete Entity - Id: " + str (entity.id)
         response = requests.delete(self._fiwareAddress + "/v2/entities/" + str(entity.id))
         statusCode = response.status_code
         

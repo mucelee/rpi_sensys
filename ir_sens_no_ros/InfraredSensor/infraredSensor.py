@@ -8,8 +8,3 @@ class InfraredSensor(SensorDataEntry):
 
     def test_value_change(self):
         self.test += 1
-    
-    """ def __repr__(self):
-        retVal = ""
-        retVal = "Type: " + str(self.__class__.__name__)
-        return retVal """

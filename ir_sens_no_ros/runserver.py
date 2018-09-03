@@ -20,19 +20,16 @@ parsedConfigFile = Config(CONFIG_FILE)
 if __name__ == '__main__': 
     # create an instance of the fiware ocb handler
     ocbHandler = ContextBrokerHandler(parsedConfigFile.getFiwareServerAddress())
-    entityAttributeChangePublisher = EntityAttributeChangeObserver(parsedConfigFile.getFiwareServerAddress())
     
     sensorAgentNode = SensorAgentNode()
     irSensor = InfraredSensor()
     sensorAgentNode.add_sensor(irSensor) 
+    
     # before registering/publishing the entities, attaching is required
     # after adding it to the ocbHandler, feel free to register/publish the entities
-    #sensorAgentNode.attach_publisher(entityAttributeChangePublisher)
-    
     ocbHandler.attach_entity(sensorAgentNode)
     ocbHandler.register_entities()
 
-    #time.sleep(5)
     user_input = ""
     while True:
         irSensor.test_value_change()

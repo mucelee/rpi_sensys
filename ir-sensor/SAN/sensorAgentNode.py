@@ -16,6 +16,7 @@ class SensorAgentNode(BaseFiwareClass):
         self.sensorData = []
         self._isDirty = False
 
+    @property
     def modifiedTime(self):
         return datetime.datetime.now().isoformat()
 
