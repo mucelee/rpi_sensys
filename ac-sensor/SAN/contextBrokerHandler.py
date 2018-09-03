@@ -49,7 +49,8 @@ class ContextBrokerHandler:
             time.sleep(self.minSendInterval)
             for entity in self._published_entities:
                 if(entity.is_dirty() == True):
-                    self._update_entity(entity)
+                    threading.Thread(target=self._update_entity, args=(entity,)).start()
+                    #self._update_entity(entity)
 
     def _create_entity(self, entityInstance):
         print "Creating entity %s" % (entityInstance.id)
