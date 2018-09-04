@@ -19,7 +19,9 @@ class TestSensor(object):
 		self.voltagePositiveAverage = 0
 		self.lastPublishedCurrent = -99999
 		self.nextPublishTime = 0
-		ads1256.start("1",str(self.readFrequency))
+		if ads1256.start("1",str(self.readFrequency)) != 0:
+			print("Failed starting the ADC")
+			return
 		#threading.Thread(target=self.loop).start()
 
 	def __del__(self):

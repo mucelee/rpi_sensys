@@ -11,8 +11,8 @@ class AlternatingCurrentSensor(SensorDataEntry):
 	# configuration
 	adcChannel = 2
 	publishInterval = 1
-	readFrequency = 100 # ADC's SPS parameter. Possible values:   2d5,  5,  10,  15,  25,  30,  50,  60,  100,  500,  1000,  2000,  3750,  7500,  15000,  30000
-	smoothingFactor = 0.2
+	readFrequency = 30000 # ADC's SPS parameter. Possible values:   2d5,  5,  10,  15,  25,  30,  50,  60,  100,  500,  1000,  2000,  3750,  7500,  15000,  30000
+	smoothingFactor = 0.05
 	minimumDeltaMilliampsForPublish = 0
 
 	def __init__(self):
@@ -21,7 +21,9 @@ class AlternatingCurrentSensor(SensorDataEntry):
 		self.voltagePositiveAverage = 0
 		self.lastPublishedCurrent = -999999
 		self.nextPublishTime = 0
-		ads1256.start("1",str(self.readFrequency))
+		if ads1256.start("1",str(self.readFrequency)) != 0:
+			print "Failed starting ADC"
+			return
 		threading.Thread(target=self.loop).start()
 
 	def __del__(self):
@@ -52,6 +54,7 @@ class AlternatingCurrentSensor(SensorDataEntry):
 		currentTime = time.clock()
 		if currentTime < self.nextPublishTime:
 			return
+		print(rmsMilliamps)
 		self.nextPublishTime = currentTime + 1
 		self.lastPublishedCurrent = rmsMilliamps
 		self.addReading(rmsMilliamps)
