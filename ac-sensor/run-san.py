@@ -1,5 +1,6 @@
-from os import environ
+import os
 import time
+import sys
 
 from Utilities.configParser import Config
 from SAN.sensorAgentNode import SensorAgentNode
@@ -18,12 +19,11 @@ if __name__ == '__main__':
     ocbHandler = ContextBrokerHandler(parsedConfigFile.getFiwareServerAddress(), 1)
     # Create SAN instance
     sensorAgentNode = SensorAgentNode()
-    
+
     # Create sensor
     acSensor = AlternatingCurrentSensor()
-    sensorAgentNode.add_sensor(acSensor) 
-    
-    
+    sensorAgentNode.add_sensor(acSensor)
+
     # Attach SAN to OCB handler
     ocbHandler.attach_entity(sensorAgentNode)
     # Register entities with OCB server
@@ -31,10 +31,12 @@ if __name__ == '__main__':
 
     # Keep running until user Ctrl+C's
     try:
-	    while True:
-		    pass
+        while True:
+            pass
     except KeyboardInterrupt:
         del acSensor
+        del sensorAgentNode
+        ocbHandler.unregister_entities()
+        del ocbHandler
+	os._exit(os.EX_OK)
     print "Done"
-    # Delete entities after shutting down
-    ocbHandler.unregister_entities()   

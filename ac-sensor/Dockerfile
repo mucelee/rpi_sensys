@@ -29,4 +29,4 @@ ADD . /ac_sensor
 RUN pip install -r requirements.txt
 
 # Launch the ros package
-CMD ["python", "wait.py"]
+CMD ["python", "run-san.py"]
