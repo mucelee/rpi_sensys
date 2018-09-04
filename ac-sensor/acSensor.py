@@ -19,7 +19,7 @@ class AlternatingCurrentSensor(SensorDataEntry):
 		SensorDataEntry.__init__(self)
 		self.voltageAverage = 0
 		self.voltagePositiveAverage = 0
-		self.lastPublishedCurrent = -999999
+		#self.lastPublishedCurrent = -999999
 		self.nextPublishTime = 0
 		if ads1256.start("1",str(self.readFrequency)) != 0:
 			print "Failed starting ADC"
@@ -31,9 +31,9 @@ class AlternatingCurrentSensor(SensorDataEntry):
 
 	def loop(self):
 		while True:
-			nextProcessTime = time.clock() + 1 / self.readFrequency / 2
-			self.processData(ads1256.read_channel(self.adcChannel))
-			while time.clock() < nextProcessTime:
+			nextProcessTime = time.time() + 1.0 / self.readFrequency / 2.0
+			self.processData(ads1256.read_all_channels()[self.adcChannel])
+			while time.time() < nextProcessTime:
 				pass
 			#time.sleep(1 / self.readFrequency / 2)
 
@@ -51,7 +51,7 @@ class AlternatingCurrentSensor(SensorDataEntry):
 		# if math.fabs(self.lastPublishedCurrent - rmsMilliamps) < self.minimumDeltaMilliampsForPublish:
 		# 	return
 		# print(rmsMilliamps)
-		currentTime = time.clock()
+		currentTime = time.time()
 		if currentTime < self.nextPublishTime:
 			return
 		print(rmsMilliamps)

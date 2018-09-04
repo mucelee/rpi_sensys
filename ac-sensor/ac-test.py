@@ -30,7 +30,7 @@ class TestSensor(object):
 	def loop(self):
 		while True:
 			nextProcessTime = time.clock() + 1 / self.readFrequency / 2
-			channelValue = ads1256.read_channel(self.adcChannel)
+			channelValue = ads1256.read_all_channels()[self.adcChannel]
 			#print(channelValue)
 			self.processData(channelValue)
 			while time.clock() < nextProcessTime:
