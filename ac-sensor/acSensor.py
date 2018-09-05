@@ -9,11 +9,12 @@ from SAN.sensorDataEntry import SensorDataEntry
 class AlternatingCurrentSensor(SensorDataEntry):
 
 	# configuration
-	adcChannel = 2
+	adcChannel = 4
 	publishInterval = 1
+	gain = 1 # ADC Gain. Possible values : 1, 2, 4, 8, 16, 32, 64 - shouldnt use anything but 1, unless we find a decent library for the ADC chip and can set a vref or create more complex circuit to bring baseline to 0V
 	readFrequency = 30000 # ADC's SPS parameter. Possible values:   2d5,  5,  10,  15,  25,  30,  50,  60,  100,  500,  1000,  2000,  3750,  7500,  15000,  30000
-	smoothingFactor = 0.05
-	minimumDeltaMilliampsForPublish = 0
+	smoothingFactor = 0.25
+	#minimumDeltaMilliampsForPublish = 0
 
 	def __init__(self):
 		SensorDataEntry.__init__(self)
@@ -21,24 +22,30 @@ class AlternatingCurrentSensor(SensorDataEntry):
 		self.voltagePositiveAverage = 0
 		#self.lastPublishedCurrent = -999999
 		self.nextPublishTime = 0
-		if ads1256.start("1",str(self.readFrequency)) != 0:
+		if ads1256.start(str(self.gain), str(self.readFrequency)) != 0:
 			print "Failed starting ADC"
 			return
+		self.stopLoop = False
 		threading.Thread(target=self.loop).start()
 
 	def __del__(self):
 		ads1256.stop()
+		self.stopLoop = True
+		print "Destroying sensor"
 
 	def loop(self):
-		while True:
-			nextProcessTime = time.time() + 1.0 / self.readFrequency / 2.0
+		while not self.stopLoop:
+			#nextProcessTime = time.time() + 0.02 #1.0 / self.readFrequency * 2
 			self.processData(ads1256.read_all_channels()[self.adcChannel])
-			while time.time() < nextProcessTime:
-				pass
-			#time.sleep(1 / self.readFrequency / 2)
+			#self.processData(ads1256.read_channel(self.adcChannel))
+			#while time.time() < nextProcessTime:
+			#	pass
+			#waitTime = nextProcessTime - time.time()
+			#print waitTime
+			time.sleep(0.01) # let other threads work
 
 	def processData(self, channelValue):
-		voltage = ((channelValue * 100) / 167.0) / 1000000.0
+		voltage = ((channelValue * 100) / 167.0) / 1000000.0 / self.gain
 		if(self.voltageAverage == 0):
 			self.voltageAverage = voltage
 			self.voltagePositiveAverage = voltage

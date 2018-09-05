@@ -7,7 +7,7 @@ import threading
 class TestSensor(object):
 
 	# configuration
-	adcChannel = 2
+	adcChannel = 4
 	publishInterval = 1
 	readFrequency = 30000 # ADC's SPS parameter. Possible values:   2d5,  5,  10,  15,  25,  30,  50,  60,  100,  500,  1000,  2000,  3750,  7500,  15000,  30000
 	smoothingFactor = 0.05

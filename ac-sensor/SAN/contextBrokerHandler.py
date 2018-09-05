@@ -1,5 +1,5 @@
 import requests
-import json 
+import json
 import httplib
 import time
 import threading
@@ -24,7 +24,11 @@ class ContextBrokerHandler:
         self.minSendInterval = minSendInterval
         self._published_entities = []
         self._attached_entities = []
+        self._stopLoop = False
         self._start_loop()
+
+    def __del__(self):
+        self._stopLoop = True
 
     def attach_entity(self, entity):
         self._attached_entities.append(entity)
@@ -45,12 +49,12 @@ class ContextBrokerHandler:
         updateThread.start()
 
     def _loop(self):
-        while True:
+        while not self._stopLoop:
             time.sleep(self.minSendInterval)
             for entity in self._published_entities:
                 if(entity.is_dirty() == True):
-                    threading.Thread(target=self._update_entity, args=(entity,)).start()
-                    #self._update_entity(entity)
+                    #threading.Thread(target=self._update_entity, args=(entity,)).start()
+                    self._update_entity(entity)
 
     def _create_entity(self, entityInstance):
         print "Creating entity %s" % (entityInstance.id)
