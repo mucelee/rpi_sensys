@@ -7,6 +7,7 @@ from SAN.contextBrokerHandler import ContextBrokerHandler
 
 from Example.exampleSensor import ExampleSensor
 from Example.exampleSensorTimeseries import ExampleSensorTimeseries
+import Example.exampleAlternative as exampleAlternative
 
 CONFIG_FILE = "fiware_config.ini"
 parsedConfigFile = Config(CONFIG_FILE)
@@ -20,10 +21,19 @@ if __name__ == '__main__':
     # Create SAN instance
     sensorAgentNode = SensorAgentNode()
     
-    # Create sensor and add to SAN (Use one or both)
+    # Create sensor and add to SAN
+    
+    # Example 1
     #exampleSensor = ExampleSensor()
-    exampleSensorTimeseries = ExampleSensorTimeseries()
-    sensorAgentNode.add_sensor(exampleSensorTimeseries) 
+    #sensorAgentNode.add_sensor(exampleSensor)
+
+    # Example 2
+    #exampleSensorTimeseries = ExampleSensorTimeseries()
+    #sensorAgentNode.add_sensor(exampleSensorTimeseries)
+    
+    # Example 3
+    exampleAlternative.startLoop()
+    sensorAgentNode.add_sensor(exampleAlternative.sensor) 
     
     
     # Attach SAN to OCB handler
